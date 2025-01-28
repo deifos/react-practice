@@ -2,29 +2,10 @@ import "./App.css";
 import { useState } from "react";
 
 function App() {
-  const [items, setItems] = useState<string[]>([]);
-  const [newItem, setNewItem] = useState("");
+  const [todos, setTodos] = useState<string[]>([]);
+  const [todo, setTodo] = useState<string>("");
   const [editIndex, setEditIndex] = useState<number | null>(null);
-
-  const handleAddItem = () => {
-    setItems([...items, newItem]);
-    setNewItem("");
-  };
-
-  const handleOnDelete = (index: number) => {
-    const updateItems = items.filter((_, i) => i !== index);
-    setItems(updateItems);
-  };
-
-  const handleUpdateItem = () => {
-    const updatedItems = [...items];
-    setItems([...updatedItems]);
-    setEditIndex(null);
-  };
-
-  const handleOnEdit = (index: number) => {
-    setEditIndex(index);
-  };
+  const [updatedTodo, setUpdatedTodo] = useState<string>("");
 
   return (
     <>
@@ -33,46 +14,75 @@ function App() {
           <h1>Todo App</h1>
         </header>
         <div>Basic bare bone todo app</div>
-        <div>
-          <input
-            type="text"
-            placeholder="Add a new task"
-            onChange={(e) => setNewItem(e.target.value)}
-          />
-          <button onClick={handleAddItem}>Add</button>
-        </div>
-        <div>
-          <ul>
-            {items.map((item, index) => (
-              <li key={index}>
+        <input
+          type="text"
+          placeholder="Add todo"
+          onChange={(e) => setTodo(e.currentTarget.value)}
+          value={todo}
+        />
+        <button
+          onClick={() => {
+            setTodos([...todos, todo]);
+            setTodo("");
+          }}
+        >
+          Add
+        </button>
+      </div>
+      <div>
+        <ul>
+          {todos.map((todo, index) => (
+            <li key={index}>
+              <>
+                {editIndex === index && (
+                  <div>
+                    <input
+                      value={updatedTodo}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setUpdatedTodo(e.currentTarget.value)
+                      }
+                    />
+                    <button
+                      onClick={() => {
+                        setTodos(() => {
+                          const newTodos: string[] = [...todos];
+                          newTodos[index] = updatedTodo;
+                          return newTodos;
+                        });
+                        setEditIndex(null);
+                      }}
+                    >
+                      save
+                    </button>
+                  </div>
+                )}
                 {editIndex !== index && (
                   <>
-                    {item}
-                    <button onClick={() => handleOnDelete(index)}>
-                      delete
-                    </button>
-                    <button onClick={() => handleOnEdit(index)}>edit</button>
-                  </>
-                )}
-
-                {editIndex === index && (
-                  <>
-                    <input
-                      type="text"
-                      value={items[index]}
-                      onChange={(e) => {
-                        const updatedList = [...items];
-                        updatedList[index] = e.target.value;
-                        setItems(updatedList);
+                    <span
+                      onClick={() =>
+                        setTodos(() => {
+                          const newTodos = [...todos];
+                          newTodos.splice(index, 1);
+                          return newTodos;
+                        })
+                      }
+                    >
+                      {todo}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setEditIndex(index);
+                        setUpdatedTodo(todos[index]);
                       }}
-                    />
-                    <button onClick={() => handleUpdateItem()}>save</button>
+                    >
+                      edit
+                    </button>
                   </>
                 )}
-              </li>
-            ))}
-          </ul>
-        </div>
+              </>
+            </li>
+          ))}
+        </ul>
       </div>
     </>
   );
